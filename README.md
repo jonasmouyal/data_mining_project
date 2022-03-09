@@ -1,6 +1,6 @@
 # Data Mining Project
 
-#### Project desription
+#### Project description
 
   This project is part of our ITC curriculum.
   The objective is to work in pair to scrap information from a website.
@@ -8,21 +8,44 @@
 
 We decided to work on this website because of the variety of content that it is offering for games developer: from 3D templates to audio sounds and Machine Learning assets.
 We used Python module Selenium in order to retrieve the information from the different pages and navigate around them.
+We used Python module pymysql to create a database which will store the assets' information.
 
+#### How to use
+
+You will need to call our code in the command line with other arguments to scrap this website.
+There are three types of arguments:
+- -c: the user can enter one or more categories he would like to scrap from the different proposed choices or all if he'd like to scrap all the website.
+- -n: the user can enter one or more assets to look for and the 10 best results will be scrapped.
+- -t: the user can enter one or more popular assets from top categories he would like to scrap from the different choices.
 
 #### Code explanation
 
-  The code is decomposed in 5 main functions (the first three are applied to each asset page individually):
+  The code is decomposed in several functions with different usage.
+  First the command_args function which retrieve the user inputs in order to select the type of data we need to scrap.
+  
+  The three following functions are applied to each asset page individually:
+  - get_basic_info: scraps basic information about the asset such as the title, the category, the editor ...
+  - get_sections: scraps five sub links on the asset webpage which are the description, the content, the versions, the reviews, and the editor.
+  - get_visuals: scraps the assets' URL links visuals (image or YouTube video).
+  Not all the lines of code were used as we tried to limit the most relevant information to enter the database.
+  For example, the get_visuals function was implemented but not used.
+ 
+ The following are gathering the links that the users requested:
+  - get_assets_links_categories: returns the categories' links requested by the user in the command line.
+  - get_assets_links_popular: returns the popular categories' links requested by the user in the command line.
+  - get_assets_links: returns the assets' links requested by the user in the command line.
 
-  - get_basic_info: scraps basic information about the asset  such as the title, the category, the editor ...
-  - get_sections: scraps five sublink on the asset webpage which are the description, the content,  the versions, the reviews, and the editor.
-  - get_visuals: scraps the assets' url links visuals (image or YouTube video)
-  - get_assets_links:  it navigates through the website and get the url links to every asset.
-  - scrap_unity_assets: uses the four previous functions to scrap the assets, retrieve the data and prints it in a csv file.
+The last one, scrap_assets, loops through each asset from his link, scrap its data and enters it in a database.
 
-To use our code, you will need to import the modules: selenium (that we are using with Chrome driver), time, re and csv. 
-Just use the requirements.txt file provided.
+To use our code, you will need to import the modules: selenium (that we are using with Chrome driver), time, re, argparse, pymysql, tqdm and datetime.
+Just use the requirements.txt and conf.py file provided.
 
+#### Database
+
+The database consists of three tables:
+- assets: store the assets information and relevant information.
+- editors: store the editors' information and relevant information.
+- reviews: store all the reviews about all the assets.
 
 ## Authors
 
