@@ -42,9 +42,11 @@ Just use the requirements.txt and conf.py file provided.
 
 #### Database
 
-The database consists of three tables:
+The database consists of five tables:
 - assets: store the assets information and relevant information.
 - editors: store the editors' information and relevant information.
+- categories: links all categories to subcategories.
+- subcategories: links all subcategories to categories.
 - reviews: store all the reviews about all the assets.
 
 ## Authors
