@@ -10,7 +10,7 @@ We decided to work on this website because of the variety of content that it is 
 We used Python module Selenium in order to retrieve the information from the different pages and navigate around them.
 We used Python module pymysql to create a database which will store the assets' information.
 
-#### How to use
+#### How to use the scrapper
 
 You will need to call our code in the command line with other arguments to scrap this website.
 There are three types of arguments:
@@ -42,12 +42,13 @@ Just use the requirements.txt and conf.py file provided.
 
 #### Database
 
-The database consists of five tables:
+The database consists of four tables, linked between them as shown in the ERD diagram also provided:
 - assets: store the assets information and relevant information.
 - editors: store the editors' information and relevant information.
-- categories: links all categories to subcategories.
-- subcategories: links all subcategories to categories.
+- categories_subcategories: links all asset paths to categories and subcategories.
 - reviews: store all the reviews about all the assets.
+
+To create the local database, you have to use the database.py file which will create all the above tables. Using the data_mining_to_database file will fll the database based on the user requests in the command line.
 
 ## Authors
 
