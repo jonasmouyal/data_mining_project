@@ -13,10 +13,12 @@ We used Python module pymysql to create a database which will store the assets' 
 #### How to use the scrapper
 
 You will need to call our code in the command line with other arguments to scrap this website.
-There are three types of arguments:
+
+In the Terminal, you will have to call the file data_mining_to_database with the following arguments. There are three types of arguments:
 - -c: the user can enter one or more categories he would like to scrap from the different proposed choices or all if he'd like to scrap all the website.
 - -n: the user can enter one or more assets to look for and the 10 best results will be scrapped.
 - -t: the user can enter one or more popular assets from top categories he would like to scrap from the different choices.
+
 
 #### Code explanation
 
