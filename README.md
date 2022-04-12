@@ -45,10 +45,10 @@ Just use the requirements.txt and conf.py file provided.
 #### Database
 
 The database consists of four tables, linked between them as shown in the ERD diagram also provided:
-- assets: store the assets information and relevant information (name, price, size, number of files, path, editor, unity version, release date, version, number of reviews, rating).
-- editors: store the editors' information and relevant information (name, website, email, number of assets).
-- categories_subcategories: links all asset paths to categories and subcategories (asset path, category, subcategory, sub_subcategory, sub_sub_category).
-- reviews: store all the reviews about all the assets (asset name, reviewer name, rating, review text).
+- assets: store the assets information and relevant information (asset_id, name, price_USD, asset_size, number_of_files, category_id, editor_id, unity_version, release_date, asset_version, number_of_reviews, average_rating_over_five).
+- editors: store the editors' information and relevant information (editor_id, name, website, email, number_of_assets).
+- categories: links all asset paths to categories (category_id, asset_path, category_name).
+- reviews: store all the reviews about all the assets (review_id, asset_name, reviewer_name, rating_over_five, text).
 
 To create the local database, you have to use the database.py file which will create the database and the above tables. Using the data_mining_to_database file will fll the database based on the user requests in the command line.
 
