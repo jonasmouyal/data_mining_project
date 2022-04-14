@@ -10,6 +10,15 @@ import argparse
 import pymysql
 from tqdm import tqdm
 from datetime import datetime
+import http.client
+import mimetypes
+import requests
+import logging
+
+logging.basicConfig(filename='data_mining.log',
+                    format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
+                    level=logging.INFO)
+
 
 # password for local MYSQL connection
 password = ''

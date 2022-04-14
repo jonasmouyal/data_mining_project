@@ -5,7 +5,19 @@ connection = CFG.pymysql.connect(host='localhost',
                                  password=CFG.password,
                                  charset='utf8mb4',
                                  cursorclass=CFG.pymysql.cursors.DictCursor)
+"""
+with connection:
+    with connection.cursor() as cursor:
+        # Create a new database
+        sql = 'DROP DATABASE unity;'
+        cursor.execute(sql)
 
+connection = CFG.pymysql.connect(host='localhost',
+                                 user='root',
+                                 password=CFG.password,
+                                 charset='utf8mb4',
+                                 cursorclass=CFG.pymysql.cursors.DictCursor)
+"""
 with connection:
     with connection.cursor() as cursor:
         # Create a new database
@@ -21,35 +33,23 @@ connection = CFG.pymysql.connect(host='localhost',
 with connection:
     with connection.cursor() as cursor:
         # Create a new table
-        sql = 'CREATE TABLE assets (name VARCHAR(150) PRIMARY KEY, price_USD VARCHAR(150), ' \
-              'asset_size VARCHAR(150), number_of_files INT, asset_path VARCHAR(150),' \
-              'editor VARCHAR(150), unity_version VARCHAR(150), release_date DATE, asset_version VARCHAR(150),' \
-              'number_of_reviews INT, average_rating_over_five INT);'
+        sql = 'CREATE TABLE assets (asset_id INT NOT NULL AUTO_INCREMENT, name VARCHAR(150) UNIQUE, price_USD FLOAT, ' \
+              'asset_size VARCHAR(150), number_of_files INT, category_id INT,' \
+              'editor_id INT, unity_version VARCHAR(150), release_date DATE, asset_version VARCHAR(150),' \
+              'number_of_reviews INT, average_rating_over_five INT, PRIMARY KEY(asset_id));'
         cursor.execute(sql)
 
-        sql = 'CREATE TABLE categories_subcategories (asset_path VARCHAR(150) NOT NULL, category VARCHAR(150), ' \
-              'subcategory VARCHAR(150),sub_subcategory VARCHAR(150),' \
-              'sub_sub_subcategory VARCHAR(150), PRIMARY KEY (asset_path));'
+        sql = 'CREATE TABLE categories (category_id INT NOT NULL AUTO_INCREMENT, asset_path VARCHAR(150) UNIQUE, ' \
+              'category_name VARCHAR(150), PRIMARY KEY (category_id));'
         cursor.execute(sql)
 
-        sql = 'CREATE TABLE editors (name VARCHAR(150) PRIMARY KEY, website VARCHAR(150), ' \
-              'email VARCHAR(150), number_of_assets INT); '
-        cursor.execute(sql)
-        sql = 'CREATE TABLE reviews (asset_name VARCHAR(150), reviewer_name VARCHAR(150), ' \
-              'rating_over_five INT, text LONGTEXT, PRIMARY KEY (asset_name, reviewer_name));'
+        sql = 'CREATE TABLE editors (editor_id INT NOT NULL AUTO_INCREMENT, name VARCHAR(150) NOT NULL UNIQUE, ' \
+              'website VARCHAR(150), ' \
+              'email VARCHAR(150), number_of_assets INT,' \
+              'PRIMARY KEY(editor_id)); '
         cursor.execute(sql)
 
-"""
-# code to drop the database if needed
-connection = CFG.pymysql.connect(host='localhost',
-                             user='root',
-                             password=CFG.password,
-                             charset='utf8mb4',
-                             cursorclass=pymysql.cursors.DictCursor)
-
-with connection:
-    with connection.cursor() as cursor:
-        # Create a new database
-        sql = 'DROP DATABASE unity;'
+        sql = 'CREATE TABLE reviews (review_id INT NOT NULL AUTO_INCREMENT, asset_name VARCHAR(150), ' \
+              'reviewer_name VARCHAR(150), ' \
+              'rating_over_five INT, text LONGTEXT, PRIMARY KEY (review_id));'
         cursor.execute(sql)
-"""

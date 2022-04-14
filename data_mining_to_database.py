@@ -10,38 +10,7 @@ def get_basic_info(driver, link):
     """This function contains the code to get basic information from an asset"""
     # basic information about the product without clicking something
     driver.get(link)
-    CFG.time.sleep(2)
-
-    ##### UNUSED DATA FOR NOW ########
-    """ 
-    # title_of_page = driver.title
-    try:
-        nb_of_views = driver.find_element(By.XPATH, "//div[@class='Iuau8']/span").text
-    except NoSuchElementException:
-        pass
-    try:
-        licence_agreement = driver.find_element(By.XPATH, "//div[@class='_27124 product-license_agreement']/a").text
-        licence_agreement_link = driver.find_element(By.XPATH,
-                                                     "//div[@class='_27124 product-license_agreement']/a").get_attribute(
-            'href')
-    except NoSuchElementException:
-        pass
-    finally:
-        licence_agreement = driver.find_element(By.XPATH, "//div[@class='SoNzt']").text
-    try:
-        licence_type = driver.find_element(By.XPATH,
-                                           "//div[@class='_27124 product-license']/div[@class='SoNzt _2vCmH']").text
-    except NoSuchElementException:
-        pass
-    # latest_version = driver.find_element(By.XPATH, "//div[@class='_27124 product-version']/div[@class='SoNzt']").text
-    try:
-        support_link = driver.find_element(By.XPATH,
-                                           "//div[@class='_27124 product-support']/a").get_attribute(
-            'href')
-    except NoSuchElementException:
-        pass
-    image_presentation_url = driver.find_element(CFG.By.XPATH, "//meta[@property='og:image']").get_attribute('content')
-    """
+    CFG.time.sleep(4)
 
     try:
         nb_times_fav = driver.find_element(CFG.By.XPATH, "//div[@class='_3EMPt']").text.lstrip('(').rstrip(')')
@@ -49,16 +18,27 @@ def get_basic_info(driver, link):
         nb_times_fav = None
 
     try:
-        price_of_asset = driver.find_element(CFG.By.XPATH, "//div[@class='mErEH _223RA']").text.lstrip('$')
+        price_of_asset = driver.find_element(CFG.By.XPATH, "//div[@class='mErEH _223RA']").text.lstrip('$').lstrip('€')
     except CFG.NoSuchElementException:
         try:
-            price_of_asset = driver.find_element(CFG.By.XPATH, "//div[@class='mErEH']").text.lstrip('$')
+            price_of_asset = driver.find_element(CFG.By.XPATH, "//div[@class='mErEH']").text.lstrip('$').lstrip('€')
         except CFG.NoSuchElementException:
             price_of_asset = None
+    try:
+        title_of_asset = driver.find_element(CFG.By.XPATH, "//div/h1[@class='cfm2v']").text
+    except CFG.NoSuchElementException:
+        title_of_asset = None
 
-    title_of_asset = driver.find_element(CFG.By.XPATH, "//div/h1[@class='cfm2v']").text
-    editor_name = driver.find_element(CFG.By.XPATH, "//div[@class='U9Sw1']").text
-    asset_file_size = driver.find_element(CFG.By.XPATH, "//div[@class='_27124 product-size']/div[@class='SoNzt']").text
+    try:
+        editor_name = driver.find_element(CFG.By.XPATH, "//div[@class='U9Sw1']").text
+    except CFG.NoSuchElementException:
+        editor_name = None
+
+    try:
+        asset_file_size = driver.find_element(CFG.By.XPATH, "//div[@class='_27124 product-size']/div[@class='SoNzt']") \
+            .text
+    except CFG.NoSuchElementException:
+        asset_file_size = None
 
     try:
         asset_path = ''
@@ -68,13 +48,19 @@ def get_basic_info(driver, link):
     except CFG.NoSuchElementException:
         asset_path = None
 
-    latest_release_date = format_date(driver.find_element(CFG.By.XPATH,
-                                                          "//div[@class='_27124 product-date']/div[@class='SoNzt']").text)
-    supported_unity_versions = driver.find_element(CFG.By.XPATH,
-                                                   "//div[@class='_27124 product-support_version']/div[@class='SoNzt']").text
+    try:
+        latest_release_date = format_date(driver.find_element(CFG.By.XPATH, "//div[@class='_27124 product-date']/div"
+                                                                            "[@class='SoNzt']").text)
+    except CFG.NoSuchElementException:
+        latest_release_date = None
+    try:
+        supported_unity_versions = driver.find_element(CFG.By.XPATH, "//div[@class='_27124 product-support_version']/"
+                                                                     "div[@class='SoNzt']").text
+    except CFG.NoSuchElementException:
+        supported_unity_versions = None
 
-    return title_of_asset, price_of_asset, nb_times_fav, asset_file_size, \
-           asset_path, editor_name, supported_unity_versions, latest_release_date
+    return title_of_asset, price_of_asset, nb_times_fav, asset_file_size, asset_path, \
+           editor_name, supported_unity_versions, latest_release_date
 
 
 def description_section(driver):
@@ -89,6 +75,8 @@ def description_section(driver):
         description = driver.find_element(CFG.By.XPATH, "//div[@class='_1_3uP _1rkJa']").text
     except CFG.NoSuchElementException:
         pass
+
+    return description
 
 
 def content_section(driver):
@@ -124,30 +112,11 @@ def releases_section(driver):
     return current_version
 
 
-def reviews_section(driver):
-    """This function contains the code to get reviews information of a product"""
-    CFG.time.sleep(2)
-    # get the information about all the reviews
-    nb_of_reviews_full = driver.find_element(CFG.By.XPATH, "//div[@class='_3YfQH']/span").text
-    try:
-        # get the actual number of reviews
-        nb_of_reviews_temp = CFG.re.search(r'\d+\s[r].+', nb_of_reviews_full)[0]
-        nb_of_reviews = CFG.re.findall(r'\d+', nb_of_reviews_temp)[0]
-    except TypeError:
-        nb_of_reviews = None
-
-    # initialize a list to store reviews (reviews will be stored into dictionary)
-    reviews = []
-
-    # get the average rating for the reviews
-    total_stars = driver.find_elements(CFG.By.XPATH, "//div[@class='_3SaEc _1mh1X default']/div")
-    stars = 0
-    for i in range(len(total_stars)):
-        if total_stars[i].get_attribute('class') == '_3IZbW ifont ifont-star edpRo':
-            stars += 1
-    average_asset_rating = stars
-
-    # get the stars for all the reviews' page
+def get_reviews(driver):
+    """
+    get the reviews for each page
+    """
+    # get the stars for all the page's reviews
     total_stars = driver.find_elements(CFG.By.XPATH, "//div[@class='_3SaEc _3z8IT default']/div")
     stars = 0
     stars_list = []
@@ -179,8 +148,33 @@ def reviews_section(driver):
             'rating': f'{stars_list[i]}'
         }
 
-        # add the dictionary to reviews list
-        reviews.append(review_dict)
+        return review_dict
+
+
+def reviews_section(driver):
+    """This function contains the code to get reviews information of a product"""
+    CFG.time.sleep(2)
+    # get the information about all the reviews
+    nb_of_reviews_full = driver.find_element(CFG.By.XPATH, "//div[@class='_3YfQH']/span").text
+    try:
+        # get the actual number of reviews
+        nb_of_reviews_temp = CFG.re.search(r'\d+\s[r].+', nb_of_reviews_full)[0]
+        nb_of_reviews = CFG.re.findall(r'\d+', nb_of_reviews_temp)[0]
+    except TypeError:
+        nb_of_reviews = None
+
+    # initialize a list to store reviews (reviews will be stored into dictionary)
+    reviews = []
+
+    # get the average rating for the reviews
+    total_stars = driver.find_elements(CFG.By.XPATH, "//div[@class='_3SaEc _1mh1X default']/div")
+    stars = 0
+    for i in range(len(total_stars)):
+        if total_stars[i].get_attribute('class') == '_3IZbW ifont ifont-star edpRo':
+            stars += 1
+    average_asset_rating = stars
+
+    reviews.append(get_reviews(driver))
 
     # if there are more than one pages of reviews
     try:
@@ -189,50 +183,14 @@ def reviews_section(driver):
 
         # loop through the review pages and collect information
         for page in range(len(nb_of_pages_reviews) - 3):
-
             # locate the next button and click on it
             next_button = driver.find_element(CFG.By.XPATH, "//button[@label='Next']")
             driver.execute_script("arguments[0].click()", next_button)
 
             # wait for the page to load
-            CFG.time.sleep(1)
+            CFG.time.sleep(2)
 
-            # get the stars for all the reviews' page
-            total_stars = driver.find_elements(CFG.By.XPATH, "//div[@class='_3SaEc _3z8IT default']/div")
-            stars = 0
-            stars_list = []
-            for i in range(len(total_stars)):
-                if total_stars[i].get_attribute('class') == '_3IZbW ifont ifont-star edpRo':
-                    stars += 1
-                if (i + 1) % 5 == 0:
-                    stars_list.append(stars)
-                    stars = 0
-
-            # get all the information about all the reviews in the page
-            reviews_username_list = driver.find_elements(CFG.By.XPATH, "//a[@class='bCYnm']")
-            reviews_list_comment_title = driver.find_elements(CFG.By.XPATH, "//div[@class='_2GKDi _3VcrN']")
-            reviews_list_when = driver.find_elements(CFG.By.XPATH, "//div[@class='_2gdPy']")
-            reviews_list_comment = driver.find_elements(CFG.By.XPATH, "//div[@class='Gbs5z']")
-
-            # loop through the reviews of the page and add the review info in a dictionary
-            for i in range(len(reviews_username_list)):
-                CFG.time.sleep(1)
-
-                # format the comment
-                comment = reviews_list_comment[i].text.replace('\n', ' ')
-
-                # add information of the review into a dictionary
-                review_dict = {
-                    'username': f'{reviews_username_list[i].text.split()[0]}',
-                    'version': f'{reviews_username_list[i].text.split()[-1]}',
-                    'title': f'{reviews_list_comment_title[i].text}',
-                    'when': f'{reviews_list_when[i].text}',
-                    'comment': f'{comment}',
-                    'rating': f'{stars_list[i]}'
-                }
-
-                # add the dictionary to reviews list
-                reviews.append(review_dict)
+            reviews.append(get_reviews(driver))
 
     except CFG.NoSuchElementException:
         pass
@@ -246,27 +204,6 @@ def publisher_section(driver):
     """This function contains the code to get reviews information of a product"""
     CFG.time.sleep(4)
 
-    ##### UNUSED DATA FOR NOW ########
-    """
-    try:
-        # get the publisher logo link and format it to have an url
-        publisher_logo_temp = driver.find_element(By.XPATH, "//div[@class='_1oTev']").get_attribute('style')
-        publisher_logo_url = 'http:' + re.findall(r'"([^"]*)"', publisher_logo_temp)[0]
-    except NoSuchElementException:
-        pass
-    except IndexError:
-        pass
-
-    # publisher_description = driver.find_element(By.XPATH, "//div[@class='FthBO eKdEl']").text
-    
-    # get all the social medias of the publisher
-    social_medias = driver.find_elements(By.XPATH, "//div[@class='_34Wcn']/a")
-
-    # initialize a list to store the social medias and fill it
-    social_medias_list = []
-    for media in social_medias:
-        social_medias_list.append(media.get_attribute('href'))
-    """
     try:
         publisher_website = driver.find_element(CFG.By.XPATH, "//a[@class='website']").get_attribute('href')
     except CFG.NoSuchElementException:
@@ -287,11 +224,13 @@ def publisher_section(driver):
     return nb_of_published_assets, publisher_email, publisher_website
 
 
-def get_sections(driver, link):
+def get_sections(driver):
     """This function contains the code to get all the sections' information of a product"""
-    # driver.get(link)
     # store the path to all the sections
     sections_clickable = driver.find_elements(CFG.By.XPATH, "//div[@class='_3NmBa VLu4K']/a")
+
+    files_in_asset, version_of_asset, reviews, number_of_reviews, average_asset_rating, nb_of_published_assets, \
+    publisher_email, publisher_website = None, None, None, None, None, None, None, None
 
     # loop through the sections and get the information
     for section in sections_clickable:
@@ -302,7 +241,7 @@ def get_sections(driver, link):
         # get information of the description section
         if section.get_attribute('href').split('#')[1] == 'description':
             CFG.time.sleep(2)
-            description_section(driver)
+            description = description_section(driver)
 
         # get information of the content section
         elif section.get_attribute('href').split('#')[1] == 'content':
@@ -484,7 +423,91 @@ def get_assets_links_popular(driver, popular_category):
     return popular_assets_url_list
 
 
-def scrap_assets(arguments, url_type):
+def user_choice(arguments, driver, url_type):
+    """
+    Takes the url type, arguments that is the choice of the user in argument
+    and returns right function to use based on this choice
+    """
+    # get all the assets' links from the website depending on what the user requested
+    if url_type == 'popular':
+        assets_links = get_assets_links_popular(driver, arguments)
+    elif url_type == 'assets':
+        assets_links = get_assets_links(driver, arguments)
+    else:
+        assets_links = get_assets_links_categories(driver, arguments)
+
+    return assets_links
+
+
+def scrap_basic_info(driver, link):
+    """
+    Scrap the data from get_basic_info function and returns it
+    """
+    try:
+        # get info from get_basic_info function
+        title_of_asset, price_of_asset, nb_times_fav, asset_file_size, asset_path, \
+        editor_name, supported_unity_versions, latest_release_date = get_basic_info(driver, link)
+
+        if price_of_asset == 'FREE':
+            price_of_asset = 0
+        elif price_of_asset is None:
+            price_of_asset = None
+        else:
+            price_of_asset = float(price_of_asset)
+
+        if None not in (title_of_asset, price_of_asset, nb_times_fav, asset_file_size, asset_path,
+        editor_name, supported_unity_versions, latest_release_date):
+            CFG.logging.info(f'Scrapped successfully all basic information of the asset "{title_of_asset}".')
+        else:
+            CFG.logging.info(f'Scrapped partial basic information of the asset.')
+
+    except Exception:
+        CFG.logging.error(f'Failed to scrap basic information of the asset.')
+        title_of_asset, price_of_asset, nb_times_fav, asset_file_size, asset_path, \
+        editor_name, supported_unity_versions, latest_release_date = None, None, None, None, None, None, None, None
+
+    return title_of_asset, price_of_asset, nb_times_fav, asset_file_size, asset_path, \
+           editor_name, supported_unity_versions, latest_release_date
+
+
+def scrap_sections(driver):
+    """
+    Scrap the data from get_sections function and returns it
+    """
+    try:
+        files_in_asset, version_of_asset, reviews, number_of_reviews, average_asset_rating, \
+        nb_of_published_assets, publisher_email, publisher_website = get_sections(driver)
+
+        if None not in (files_in_asset, version_of_asset, reviews, number_of_reviews, average_asset_rating,
+        nb_of_published_assets, publisher_email, publisher_website):
+            CFG.logging.info(f'Scrapped successfully all sections of the above asset.')
+        else:
+            CFG.logging.info(f'Scrapped successfully partial sections of the above asset.')
+    except Exception:
+        CFG.logging.error(f'Failed to scrap sections of the asset.')
+        files_in_asset, version_of_asset, reviews, number_of_reviews, average_asset_rating, \
+        nb_of_published_assets, publisher_email, publisher_website = None, None, None, None, None, None, None, None
+
+    return files_in_asset, version_of_asset, reviews, number_of_reviews, average_asset_rating, \
+           nb_of_published_assets, publisher_email, publisher_website
+
+
+def url_shortener(editor_url):
+    """
+    API to shorten the editors' websites url
+    """
+    api_key = "YOUR_API_KEY"
+    url = editor_url
+    api_url = f"https://cutt.ly/api/api.php?key={api_key}&short={url}"
+    data = CFG.requests.get(api_url).json()["url"]
+    if data["status"] == 7:
+        shortened_url = data["shortLink"]
+        return shortened_url
+    else:
+        return editor_url
+
+
+def fill_db(arguments, url_type):
     """This function scraps specified popular category on the Unity Asset Store"""
     # creating driver to navigate the website
     with CFG.webdriver.Chrome(service=CFG.service) as driver:
@@ -498,47 +521,27 @@ def scrap_assets(arguments, url_type):
         except CFG.NoSuchElementException:
             pass
 
-        # get all the assets' links from the website depending on what the user requested
-        if url_type == 'popular':
-            assets_links = get_assets_links_popular(driver, arguments)
-        elif url_type == 'assets':
-            assets_links = get_assets_links(driver, arguments)
-        else:
-            assets_links = get_assets_links_categories(driver, arguments)
+        assets_links = user_choice(arguments, driver, url_type)
 
         # loop through the link, access it, retrieve the information and store it in the database
         for link in CFG.tqdm(assets_links):
 
-            # get info from get_basic_info function
+            # get info from get_data_basic function
             title_of_asset, price_of_asset, nb_times_fav, asset_file_size, asset_path, \
-            editor_name, supported_unity_versions, latest_release_date = get_basic_info(driver, link)
+            editor_name, supported_unity_versions, latest_release_date = scrap_basic_info(driver, link)
 
             # get info from get_sections function
             files_in_asset, version_of_asset, reviews, number_of_reviews, average_asset_rating, \
-            nb_of_published_assets, publisher_email, publisher_website = get_sections(driver, link)
+            nb_of_published_assets, publisher_email, publisher_website_long = scrap_sections(driver)
 
-            # creating each asset path for categories_subcategories table
-            asset_category = ''
-            asset_subcategory = ''
-            asset_sub_subcategory = ''
-            asset_sub_sub_subcategory = ''
+            if asset_path is not None:
+                asset_category = asset_path.rstrip('/').split('/')[-1]
+            else:
+                asset_category = None
 
-            asset_path_list = asset_path.rstrip('/').split('/')
-
-            if len(asset_path_list) == 1:
-                asset_category = asset_path.split('/')[0]
-            elif len(asset_path_list) == 2:
-                asset_category = asset_path.split('/')[0]
-                asset_subcategory = asset_path.split('/')[1]
-            elif len(asset_path_list) == 3:
-                asset_category = asset_path.split('/')[0]
-                asset_subcategory = asset_path.split('/')[1]
-                asset_sub_subcategory = asset_path.split('/')[2]
-            elif len(asset_path_list) == 4:
-                asset_category = asset_path.split('/')[0]
-                asset_subcategory = asset_path.split('/')[1]
-                asset_sub_subcategory = asset_path.split('/')[2]
-                asset_sub_sub_subcategory = asset_path.split('/')[3]
+            # not using the API
+            #publisher_website = url_shortener(publisher_website_long)
+            publisher_website = publisher_website_long
 
             # initializing connection to local SQL database called unity created before
             connection = CFG.pymysql.connect(host='localhost',
@@ -550,46 +553,63 @@ def scrap_assets(arguments, url_type):
 
             with connection:
                 with connection.cursor() as cursor:
-                    # inserting data into table asset
-                    sql = f"INSERT INTO assets(name, price_USD,asset_size, number_of_files, asset_path, " \
-                          f"editor, unity_version, release_date, asset_version,number_of_reviews, " \
-                          f"average_rating_over_five) " \
-                          f"VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
-                          f"ON DUPLICATE KEY " \
-                          f"UPDATE price_USD=VALUES(price_USD)," \
-                          f"unity_version=VALUES(unity_version), asset_version=VALUES(asset_version), " \
-                          f"number_of_reviews=VALUES(number_of_reviews)," \
-                          f"average_rating_over_five=VALUES(average_rating_over_five);"
-
-                    cursor.execute(sql, (title_of_asset, price_of_asset, asset_file_size,
-                                         files_in_asset, asset_path, editor_name,
-                                         supported_unity_versions, latest_release_date, version_of_asset,
-                                         number_of_reviews, average_asset_rating))
-                    connection.commit()
-
-                    # inserting data into table editors
-                    sql = f"INSERT INTO editors(name, website, email, number_of_assets)" \
-                          f"VALUES (%s,%s,%s,%s)" \
-                          f"ON DUPLICATE KEY " \
-                          f"UPDATE number_of_assets=VALUES(number_of_assets);"
-                    cursor.execute(sql, (editor_name, publisher_website, publisher_email, nb_of_published_assets))
-                    connection.commit()
-
-                    # insert all the reviews of the asset into reviews table
-                    for review in reviews:
-                        sql = f"INSERT IGNORE INTO reviews(asset_name, reviewer_name, rating_over_five, text)" \
-                              f"VALUES (%s,%s,%s,%s);"
-                        cursor.execute(sql, (title_of_asset, review['username'], review['rating'], review['comment']))
+                    try:
+                        # inserting data into table categories
+                        sql = f"INSERT IGNORE INTO categories(asset_path, category_name)" \
+                              f" VALUES (%s,%s);"
+                        cursor.execute(sql, (asset_path, asset_category))
                         connection.commit()
 
-                    # inserting data into table categories_subcategories
-                    sql = f"INSERT IGNORE INTO categories_subcategories(asset_path, category, subcategory, " \
-                          f"sub_subcategory, sub_sub_subcategory)" \
-                          f"VALUES (%s,%s,%s,%s,%s);"
-                    cursor.execute(sql, (
-                        asset_path, asset_category, asset_subcategory, asset_sub_subcategory,
-                        asset_sub_sub_subcategory))
-                    connection.commit()
+                        sql = f"SELECT category_id FROM categories WHERE asset_path='{asset_path}';"
+                        cursor.execute(sql)
+                        cat_id = cursor.fetchall()
+
+                        # inserting data into table editors
+                        sql = f"INSERT IGNORE INTO editors(name, website, email, number_of_assets)" \
+                              f"VALUES (%s,%s,%s,%s)" \
+                              f"ON DUPLICATE KEY " \
+                              f"UPDATE number_of_assets=VALUES(number_of_assets);"
+                        cursor.execute(sql, (editor_name, publisher_website, publisher_email, nb_of_published_assets))
+                        connection.commit()
+
+                        sql = f"SELECT editor_id FROM editors WHERE name='{editor_name}';"
+                        cursor.execute(sql)
+                        edit_id = cursor.fetchall()
+
+                        # inserting data into table asset
+                        sql = f"INSERT INTO assets(name, price_USD, asset_size, number_of_files, category_id, " \
+                              f"editor_id, unity_version, release_date, asset_version,number_of_reviews, " \
+                              f"average_rating_over_five)" \
+                              f" VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
+                              f"ON DUPLICATE KEY " \
+                              f"UPDATE price_USD=VALUES(price_USD)," \
+                              f"unity_version=VALUES(unity_version), asset_version=VALUES(asset_version), " \
+                              f"number_of_reviews=VALUES(number_of_reviews)," \
+                              f"average_rating_over_five=VALUES(average_rating_over_five);"
+
+                        cursor.execute(sql, (title_of_asset, price_of_asset, asset_file_size,
+                                             files_in_asset, cat_id[0]['category_id'], edit_id[0]['editor_id'],
+                                             supported_unity_versions, latest_release_date, version_of_asset,
+                                             number_of_reviews, average_asset_rating))
+                        connection.commit()
+
+                        try:
+                            # insert all the reviews of the asset into reviews table
+                            for review in reviews:
+                                sql = f"INSERT IGNORE INTO reviews(" \
+                                      f"asset_name, reviewer_name, rating_over_five, text)" \
+                                      f" VALUES (%s,%s,%s,%s);"
+                                cursor.execute(sql,
+                                               (title_of_asset, review['username'], review['rating'],
+                                                review['comment']))
+                                connection.commit()
+                        except TypeError:
+                            pass
+                        CFG.logging.info(f'Successfully entered the data from '
+                                         f'asset "{title_of_asset}" in the database.')
+                    except Exception:
+                        CFG.logging.error(f'Failed to enter the data from asset "{title_of_asset}" in the database.')
+                        pass
 
 
 def command_args():
@@ -616,7 +636,7 @@ def command_args():
                              "if there is a match or an error message if no asset is found.")
 
     parser.add_argument('-t', '--popular_assets', nargs='+',
-                        choices=['On sale', 'Top selling', 'Top new', 'Top free', 'Verified Solutions'],
+                        choices=['On sale', 'Top selling', 'Top new', 'Top free'],
                         help="The user can choose to scrap popular assets by category entering '-t "
                              "top1 top2 ...' where 'top1' and 'top2' are the the popular categories the user is looking"
                              "for. The program will return all assets within the popular categories chosen.")
@@ -630,12 +650,12 @@ def command_args():
         print("No value has been called, here is the usage :\n", parser.parse_args(['-h']))
     else:
         if chosen_categories is not None:
-            scrap_assets(chosen_categories, 'categories')
+            fill_db(chosen_categories, 'categories')
         if chosen_assets is not None:
-            scrap_assets(chosen_assets, 'assets')
+            fill_db(chosen_assets, 'assets')
         if popular_categories is not None:
             for pop_category in popular_categories:
-                scrap_assets(pop_category, 'popular')
+                fill_db(pop_category, 'popular')
 
 
 def main():
