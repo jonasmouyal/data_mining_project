@@ -74,7 +74,7 @@ def description_section(driver):
     try:
         description = driver.find_element(CFG.By.XPATH, "//div[@class='_1_3uP _1rkJa']").text
     except CFG.NoSuchElementException:
-        pass
+        description = None
 
     return description
 
@@ -456,7 +456,7 @@ def scrap_basic_info(driver, link):
             price_of_asset = float(price_of_asset)
 
         if None not in (title_of_asset, price_of_asset, nb_times_fav, asset_file_size, asset_path,
-        editor_name, supported_unity_versions, latest_release_date):
+                        editor_name, supported_unity_versions, latest_release_date):
             CFG.logging.info(f'Scrapped successfully all basic information of the asset "{title_of_asset}".')
         else:
             CFG.logging.info(f'Scrapped partial basic information of the asset.')
@@ -479,7 +479,7 @@ def scrap_sections(driver):
         nb_of_published_assets, publisher_email, publisher_website = get_sections(driver)
 
         if None not in (files_in_asset, version_of_asset, reviews, number_of_reviews, average_asset_rating,
-        nb_of_published_assets, publisher_email, publisher_website):
+                        nb_of_published_assets, publisher_email, publisher_website):
             CFG.logging.info(f'Scrapped successfully all sections of the above asset.')
         else:
             CFG.logging.info(f'Scrapped successfully partial sections of the above asset.')
@@ -540,7 +540,7 @@ def fill_db(arguments, url_type):
                 asset_category = None
 
             # not using the API
-            #publisher_website = url_shortener(publisher_website_long)
+            # publisher_website = url_shortener(publisher_website_long)
             publisher_website = publisher_website_long
 
             # initializing connection to local SQL database called unity created before
@@ -565,19 +565,19 @@ def fill_db(arguments, url_type):
                         cat_id = cursor.fetchall()
 
                         # inserting data into table editors
-                        sql = f"INSERT IGNORE INTO editors(name, website, email, number_of_assets)" \
+                        sql = f"INSERT IGNORE INTO editors(editor_name, website, email, number_of_assets)" \
                               f"VALUES (%s,%s,%s,%s)" \
                               f"ON DUPLICATE KEY " \
                               f"UPDATE number_of_assets=VALUES(number_of_assets);"
                         cursor.execute(sql, (editor_name, publisher_website, publisher_email, nb_of_published_assets))
                         connection.commit()
 
-                        sql = f"SELECT editor_id FROM editors WHERE name='{editor_name}';"
+                        sql = f"SELECT editor_id FROM editors WHERE editor_name='{editor_name}';"
                         cursor.execute(sql)
                         edit_id = cursor.fetchall()
 
                         # inserting data into table asset
-                        sql = f"INSERT INTO assets(name, price_USD, asset_size, number_of_files, category_id, " \
+                        sql = f"INSERT INTO assets(asset_name, price_USD, asset_size, number_of_files, category_id, " \
                               f"editor_id, unity_version, release_date, asset_version,number_of_reviews, " \
                               f"average_rating_over_five)" \
                               f" VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
@@ -593,14 +593,18 @@ def fill_db(arguments, url_type):
                                              number_of_reviews, average_asset_rating))
                         connection.commit()
 
+                        sql = f"SELECT asset_id FROM assets WHERE asset_name='{title_of_asset}';"
+                        cursor.execute(sql)
+                        asset_id = cursor.fetchall()
+
                         try:
                             # insert all the reviews of the asset into reviews table
                             for review in reviews:
                                 sql = f"INSERT IGNORE INTO reviews(" \
-                                      f"asset_name, reviewer_name, rating_over_five, text)" \
+                                      f"asset_id, reviewer_name, rating_over_five, text)" \
                                       f" VALUES (%s,%s,%s,%s);"
                                 cursor.execute(sql,
-                                               (title_of_asset, review['username'], review['rating'],
+                                               (asset_id[0]['asset_id'], review['username'], review['rating'],
                                                 review['comment']))
                                 connection.commit()
                         except TypeError:
@@ -615,31 +619,18 @@ def fill_db(arguments, url_type):
 def command_args():
     """This function uses the argparse module to scrap the data requested in the command line"""
 
-    parser = CFG.argparse.ArgumentParser(usage="\nNo argument has been called, here is the usage:\n\n"
-                                               "name_of_python_file.py [-h] --display help"
-                                               "\n[-c {all, 3d, 2d, add-ons, audio, essentials, templates,tools, vfx}]"
-                                               " --choose one or multiple categories from list"
-                                               "\n[-n NAMES_OF_ASSETS] --enter one or more assets to search\n"
-                                               "[-t {'On sale', 'Top selling', 'Top new', 'Top free', "
-                                               "'Verified Solutions'}] --choose one or more popular category\n")
+    parser = CFG.argparse.ArgumentParser(usage=CFG.PARSER_USAGE)
 
     parser.add_argument("-c", "--list_of_cat", nargs="+",
                         choices=['all', '3d', '2d', 'add-ons', 'audio', 'essentials', 'templates', 'tools', 'vfx'],
-                        help="The user can choose to scrap all the categories by using '-c all' or one or more "
-                             "categories by using '-c cat1 cat2 ...' where 'cat1' and 'cat2' are the name of proposed "
-                             "choices of categories.")
+                        help=CFG.PARSER_CAT_HELP)
 
     parser.add_argument('-n', '--names_of_assets', nargs='+',
-                        help="The user can choose to scrap specific assets by entering '-n name1 name2 ...' where "
-                             "'name1' and 'name2' are the name of assets the user is looking for. "
-                             "The program will look for the best match to your search and returns the scraped data "
-                             "if there is a match or an error message if no asset is found.")
+                        help=CFG.PARSER_NAME_HELP)
 
     parser.add_argument('-t', '--popular_assets', nargs='+',
                         choices=['On sale', 'Top selling', 'Top new', 'Top free'],
-                        help="The user can choose to scrap popular assets by category entering '-t "
-                             "top1 top2 ...' where 'top1' and 'top2' are the the popular categories the user is looking"
-                             "for. The program will return all assets within the popular categories chosen.")
+                        help=CFG.PARSER_POP_HELP)
 
     args = parser.parse_args()
     chosen_categories = args.list_of_cat
