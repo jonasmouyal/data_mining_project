@@ -510,7 +510,8 @@ def url_shortener(editor_url):
 def fill_db(arguments, url_type):
     """This function scraps specified popular category on the Unity Asset Store"""
     # creating driver to navigate the website
-    with CFG.webdriver.Chrome(service=CFG.service, options=CFG.options) as driver:
+    with CFG.webdriver.Chrome('/home/ubuntu/data_mining_project/drivers/chromedriver', service=CFG.service,
+                              options=CFG.chrome_options) as driver:
         driver.get("https://assetstore.unity.com/")
         driver.maximize_window()
         CFG.time.sleep(5)
