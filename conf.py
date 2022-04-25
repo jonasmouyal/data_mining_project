@@ -27,7 +27,7 @@ database = 'jonas_maria'
 
 
 # path to the driver used in selenium
-PATH = "/home/ubuntu/usr/local/bin/chromedriver"
+PATH = "/home/ubuntu/data_mining_project/chromedriver"
 service = Service(PATH)
 
 # header if we decide to write the data in a csv file
