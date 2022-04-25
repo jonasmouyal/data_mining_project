@@ -544,10 +544,10 @@ def fill_db(arguments, url_type):
             publisher_website = publisher_website_long
 
             # initializing connection to local SQL database called unity created before
-            connection = CFG.pymysql.connect(host='localhost',
-                                             user='root',
+            connection = CFG.pymysql.connect(host=CFG.host,
+                                             user=CFG.root,
                                              password=CFG.password,
-                                             database='unity',
+                                             database=CFG.database,
                                              charset='utf8mb4',
                                              cursorclass=CFG.pymysql.cursors.DictCursor)
 

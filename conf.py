@@ -19,8 +19,12 @@ logging.basicConfig(filename='data_mining.log',
                     format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
                     level=logging.INFO)
 
-# password for local MYSQL connection
-password = 'ITC9876%'
+# MYSQL connection
+password = 'jonas_maria'
+root = 'jonas_maria'
+host = 'data-mining-db1.cttpnp4olbpx.us-west-1.rds.amazonaws.com'
+database = 'jonas_maria'
+
 
 # path to the driver used in selenium
 PATH = "/usr/local/bin/chromedriver"
