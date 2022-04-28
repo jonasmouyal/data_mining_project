@@ -535,7 +535,7 @@ def fill_db(arguments, url_type):
             nb_of_published_assets, publisher_email, publisher_website_long = scrap_sections(driver)
 
             if asset_path is not None:
-                asset_category = asset_path.rstrip('/').split('/')[-1]
+                asset_category = asset_path.rstrip('/').split('/')[0]
             else:
                 asset_category = None
 
