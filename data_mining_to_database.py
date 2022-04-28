@@ -534,11 +534,6 @@ def fill_db(arguments, url_type):
             files_in_asset, version_of_asset, reviews, number_of_reviews, average_asset_rating, \
             nb_of_published_assets, publisher_email, publisher_website_long = scrap_sections(driver)
 
-            if asset_path is not None:
-                asset_category = asset_path.rstrip('/').split('/')[0]
-            else:
-                asset_category = None
-
             # not using the API
             # publisher_website = url_shortener(publisher_website_long)
             publisher_website = publisher_website_long
@@ -554,11 +549,21 @@ def fill_db(arguments, url_type):
             with connection:
                 with connection.cursor() as cursor:
                     try:
-                        # inserting data into table categories
-                        sql = f"INSERT IGNORE INTO categories(asset_path, category_name)" \
-                              f" VALUES (%s,%s);"
-                        cursor.execute(sql, (asset_path, asset_category))
-                        connection.commit()
+                        if asset_path is not None:
+                            asset_category = asset_path.rstrip('/').split('/')[0]
+                            # inserting data into table categories
+                            sql = f"INSERT IGNORE INTO categories(asset_path, category_name)" \
+                                  f" VALUES (%s,%s);"
+                            cursor.execute(sql, (asset_path, asset_category))
+                            connection.commit()
+                        else:
+                            asset_category = -1
+                            asset_path = 'Unknown'
+                            # inserting data into table categories
+                            sql = f"INSERT IGNORE INTO categories(asset_path, category_name)" \
+                                  f" VALUES (%s,%s);"
+                            cursor.execute(sql, (asset_path, asset_category))
+                            connection.commit()
 
                         sql = f"SELECT category_id FROM categories WHERE asset_path='{asset_path}';"
                         cursor.execute(sql)
